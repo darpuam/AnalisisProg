@@ -17,6 +17,7 @@ namespace AnalisisProg
     {
         private const int Limite_Visualizacion = 1000000;
         long[] arregloNumeros;
+        long[] arregloOrdenado;
         public Form1()
         {
             InitializeComponent();
@@ -27,42 +28,57 @@ namespace AnalisisProg
         {
             try
             {
-                // 1. Lectura del TextBox renombrado a tbCantidad
-                long cant = long.Parse(tbCantidad.Text);
+                // MEJORA: Usar TryParse para evitar que el programa se cierre si escriben letras
+                if (!long.TryParse(tbCantidad.Text, out long cant))
+                {
+                    MessageBox.Show("Por favor ingresa un número válido.");
+                    return;
+                }
 
-                // Inicializamos el array con el tamaño fijo exacto
+                // Generación (tu código actual)
                 arregloNumeros = new long[cant];
                 Random rdn = new Random();
-
-                // Stopwatch es mucho más preciso que DateTime.Now para medir rendimiento
                 Stopwatch sw = new Stopwatch();
-                lblTiempoInicio.Text = "Inicio Generacion: " + DateTime.Now.ToString("hh:mm:ss.fff");
 
+                lblTiempoInicio.Text = "Inicio Gen: " + DateTime.Now.ToString("hh:mm:ss.fff");
                 sw.Start();
-                // Bucle optimizado para llenado rápido
                 for (long i = 0; i < cant; i++)
                 {
-                    // Generamos números aleatorios entre 1 y 1 millón
                     arregloNumeros[i] = rdn.Next(1, 1000000);
                 }
                 sw.Stop();
 
-                lblTiempoFin.Text = "Fin Generacion: " + DateTime.Now.ToString("hh:mm:ss.fff");
+                lblTiempoFin.Text = "Fin Gen: " + DateTime.Now.ToString("hh:mm:ss.fff");
                 lblDuracion.Text = $"Duración: {sw.ElapsedMilliseconds} ms";
 
-                // PROTECCIÓN DE INTERFAZ:
-                // Intentar renderizar 5,000,000 de filas en un ListBox congelaría la UI.
-                // Solo mostramos los datos si la cantidad es manejable (<= 10,000).
+                // Limpiamos la segunda lista para evitar confusiones
+                lstDatos2.DataSource = null;
+
+                // --- AQUÍ ESTÁ LA VENTANA EMERGENTE QUE PEDISTE ---
                 if (cant <= Limite_Visualizacion)
-                {// Aqui Sigue el orden de que si lstDatos.Datasource esta vacio se ejecuta la siguiente
-                    //linea de comando ? Osea se ejecuta el arregloNumeros;
+                {
                     lstDatos.DataSource = null;
                     lstDatos.DataSource = arregloNumeros;
                 }
                 else
                 {
-                    lstDatos.DataSource = null;
-                    MessageBox.Show("Datos generados en memoria. Ocultos por rendimiento.");
+                    // Preguntamos al usuario
+                    DialogResult respuesta = MessageBox.Show(
+                        $"Has generado {cant:N0} registros. Mostrarlos en la lista podría congelar la aplicación.\n\n¿Deseas mostrarlos de todos modos?",
+                        "Advertencia de Rendimiento",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning);
+
+                    if (respuesta == DialogResult.Yes)
+                    {
+                        lstDatos.DataSource = null;
+                        lstDatos.DataSource = arregloNumeros;
+                    }
+                    else
+                    {
+                        lstDatos.DataSource = null;
+                        MessageBox.Show("Datos generados en memoria, pero ocultos.");
+                    }
                 }
             }
             catch (Exception ex)
@@ -113,19 +129,23 @@ namespace AnalisisProg
         // --- QUICK SORT (O(n log n)) ---
         private async void btnQuickSort_Click_1(object sender, EventArgs e)
         {
-            
             if (arregloNumeros == null || arregloNumeros.Length == 0) return;
 
             btnQuickSort.Enabled = false;
             lblTiempoInicio.Text = "Iniciando QuickSort...";
 
+            // --- ESTA ES LA LÍNEA MÁGICA QUE TE FALTA ---
+            // Copiamos los números al arreglo que usa la Búsqueda Binaria
+            arregloOrdenado = (long[])arregloNumeros.Clone();
+
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
-            // Ejecución en segundo plano
+            // Procesamos en segundo plano para no congelar la pantalla
             await Task.Run(() =>
             {
-                QuickSort(arregloNumeros, 0, arregloNumeros.Length - 1);
+                // Ordenamos LA COPIA (arregloOrdenado) en lugar del original
+                QuickSort(arregloOrdenado, 0, arregloOrdenado.Length - 1);
             });
 
             sw.Stop();
@@ -133,10 +153,15 @@ namespace AnalisisProg
             lblDuracion.Text = $"Duración: {sw.ElapsedMilliseconds} ms";
             btnQuickSort.Enabled = true;
 
-            if (arregloNumeros.Length <= Limite_Visualizacion)
+            // Mostramos el resultado (solo si son pocos datos)
+            if (arregloOrdenado.Length <= Limite_Visualizacion)
             {
-                lstDatos.DataSource = null;
-                lstDatos.DataSource = arregloNumeros;
+                lstDatos2.DataSource = null;
+                lstDatos2.DataSource = arregloOrdenado;
+            }
+            else
+            {
+                MessageBox.Show("Ordenado completado en memoria. ¡Ahora ya funciona la Búsqueda Binaria!");
             }
         }
 
@@ -144,31 +169,51 @@ namespace AnalisisProg
         // Usamos 'async' para no bloquear la ventana principal mientras ordena
         private async void btnInsertionSort_Click_1(object sender, EventArgs e)
         {
-            if (arregloNumeros == null || arregloNumeros.Length == 0) return;
+            // Validación básica
+            if (arregloNumeros == null || arregloNumeros.Length == 0)
+            {
+                MessageBox.Show("Primero genera los números.");
+                return;
+            }
 
-            btnInsertionSort.Enabled = false; // Desactivar botón para evitar doble clic
+            // --- CAMBIO SOLICITADO: PREGUNTAR EN LUGAR DE BLOQUEAR ---
+            if (arregloNumeros.Length > 50000)
+            {
+                DialogResult respuesta = MessageBox.Show(
+                    $"¡Atención! Vas a ordenar {arregloNumeros.Length:N0} datos con Insertion Sort.\n" +
+                    "Este algoritmo es muy lento para esta cantidad y la aplicación podría congelarse varios minutos.\n\n" +
+                    "¿Deseas proceder de todos modos?",
+                    "Advertencia de Rendimiento",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+
+                // Si el usuario dice que NO, nos salimos. Si dice SÍ, el código sigue abajo.
+                if (respuesta == DialogResult.No) return;
+            }
+
+            btnInsertionSort.Enabled = false;
             lblTiempoInicio.Text = "Iniciando Insercion...";
+
+            // CRUCIAL: Preparamos el arreglo para que la Búsqueda Binaria funcione después
+            arregloOrdenado = (long[])arregloNumeros.Clone();
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
-            // Task.Run envía el proceso pesado a un hilo secundario del procesador.
-            // Esto permite que la barra de título se pueda mover y no salga "No Responde".
             await Task.Run(() =>
             {
-                // Lógica pura de Insertion Sort
-                for (long i = 1; i < arregloNumeros.Length; i++)
+                // Ordenamos LA COPIA
+                for (long i = 1; i < arregloOrdenado.Length; i++)
                 {
-                    long key = arregloNumeros[i];
+                    long key = arregloOrdenado[i];
                     long j = i - 1;
 
-                    // Desplaza los elementos mayores hacia la derecha
-                    while (j >= 0 && arregloNumeros[j] > key)
+                    while (j >= 0 && arregloOrdenado[j] > key)
                     {
-                        arregloNumeros[j + 1] = arregloNumeros[j];
+                        arregloOrdenado[j + 1] = arregloOrdenado[j];
                         j = j - 1;
                     }
-                    arregloNumeros[j + 1] = key;
+                    arregloOrdenado[j + 1] = key;
                 }
             });
 
@@ -177,13 +222,18 @@ namespace AnalisisProg
             lblDuracion.Text = $"Duración: {sw.ElapsedMilliseconds} ms";
             btnInsertionSort.Enabled = true;
 
-            // Actualizar visualización solo si son pocos datos
-            if (arregloNumeros.Length <= Limite_Visualizacion)
+            // Mostrar resultados
+            if (arregloOrdenado.Length <= Limite_Visualizacion)
             {
-                lstDatos.DataSource = null;
-                lstDatos.DataSource = arregloNumeros;
+                lstDatos2.DataSource = null;
+                lstDatos2.DataSource = arregloOrdenado;
+            }
+            else
+            {
+                MessageBox.Show("Ordenado completado en memoria. Ahora puedes usar Búsqueda Binaria.");
             }
         }
+        
 
         // --- BÚSQUEDA SECUENCIAL (Lineal - O(n)) ---
         private void btnBusquedaSecuencial_Click_1(object sender, EventArgs e)
@@ -216,7 +266,11 @@ namespace AnalisisProg
         // REQUISITO: El arreglo DEBE estar ordenado previamente (usar QuickSort primero)
         private void btnBusquedaBinaria_Click_1(object sender, EventArgs e)
         {
-            if (arregloNumeros == null) return;
+            if (arregloOrdenado == null)
+            {
+                MessageBox.Show("Primero Debes Ordenar la lista.");
+                return;
+            }
 
             long objetivo = 0;
             if (!long.TryParse(tbBuscar.Text, out objetivo)) objetivo = 450;
@@ -225,19 +279,19 @@ namespace AnalisisProg
             sw.Start();
 
             long min = 0;
-            long max = arregloNumeros.Length - 1;
+            long max = arregloOrdenado.Length - 1;
             bool encontrado = false;
 
             // Algoritmo de división sucesiva
             while (min <= max)
             {
                 long mid = (min + max) / 2; // Calcula el punto medio
-                if (objetivo == arregloNumeros[mid])
+                if (objetivo == arregloOrdenado[mid])
                 {
                     encontrado = true;
                     break;
                 }
-                else if (objetivo < arregloNumeros[mid])
+                else if (objetivo < arregloOrdenado[mid])
                 {
                     max = mid - 1; // Descartar mitad derecha
                 }
