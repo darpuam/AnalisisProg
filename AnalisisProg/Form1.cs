@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Text;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace AnalisisProg
 
     public partial class Form1 : Form
     {
-
+        private const int Limite_Visualizacion = 1000000;
         long[] arregloNumeros;
         public Form1()
         {
@@ -35,7 +36,7 @@ namespace AnalisisProg
 
                 // Stopwatch es mucho más preciso que DateTime.Now para medir rendimiento
                 Stopwatch sw = new Stopwatch();
-                lblTiempoInicio.Text = "Inicio Gen: " + DateTime.Now.ToString("hh:mm:ss.fff");
+                lblTiempoInicio.Text = "Inicio Generacion: " + DateTime.Now.ToString("hh:mm:ss.fff");
 
                 sw.Start();
                 // Bucle optimizado para llenado rápido
@@ -46,14 +47,15 @@ namespace AnalisisProg
                 }
                 sw.Stop();
 
-                lblTiempoFin.Text = "Fin Gen: " + DateTime.Now.ToString("hh:mm:ss.fff");
+                lblTiempoFin.Text = "Fin Generacion: " + DateTime.Now.ToString("hh:mm:ss.fff");
                 lblDuracion.Text = $"Duración: {sw.ElapsedMilliseconds} ms";
 
                 // PROTECCIÓN DE INTERFAZ:
                 // Intentar renderizar 5,000,000 de filas en un ListBox congelaría la UI.
                 // Solo mostramos los datos si la cantidad es manejable (<= 10,000).
-                if (cant <= 10000)
-                {
+                if (cant <= Limite_Visualizacion)
+                {// Aqui Sigue el orden de que si lstDatos.Datasource esta vacio se ejecuta la siguiente
+                    //linea de comando ? Osea se ejecuta el arregloNumeros;
                     lstDatos.DataSource = null;
                     lstDatos.DataSource = arregloNumeros;
                 }
@@ -68,7 +70,7 @@ namespace AnalisisProg
                 MessageBox.Show("Error: " + ex.Message);
             }
         }
-
+        
         // Método recursivo principal de QuickSort
         private void QuickSort(long[] arr, long low, long high)
         {
@@ -107,10 +109,11 @@ namespace AnalisisProg
             arr[high] = temp1;
             return i + 1;
         }
-
+        
         // --- QUICK SORT (O(n log n)) ---
         private async void btnQuickSort_Click_1(object sender, EventArgs e)
         {
+            
             if (arregloNumeros == null || arregloNumeros.Length == 0) return;
 
             btnQuickSort.Enabled = false;
@@ -130,7 +133,7 @@ namespace AnalisisProg
             lblDuracion.Text = $"Duración: {sw.ElapsedMilliseconds} ms";
             btnQuickSort.Enabled = true;
 
-            if (arregloNumeros.Length <= 10000)
+            if (arregloNumeros.Length <= Limite_Visualizacion)
             {
                 lstDatos.DataSource = null;
                 lstDatos.DataSource = arregloNumeros;
@@ -144,7 +147,7 @@ namespace AnalisisProg
             if (arregloNumeros == null || arregloNumeros.Length == 0) return;
 
             btnInsertionSort.Enabled = false; // Desactivar botón para evitar doble clic
-            lblTiempoInicio.Text = "Iniciando Insertion...";
+            lblTiempoInicio.Text = "Iniciando Insercion...";
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -170,12 +173,12 @@ namespace AnalisisProg
             });
 
             sw.Stop();
-            lblTiempoFin.Text = "Fin Insertion";
+            lblTiempoFin.Text = "Fin Insercion";
             lblDuracion.Text = $"Duración: {sw.ElapsedMilliseconds} ms";
             btnInsertionSort.Enabled = true;
 
             // Actualizar visualización solo si son pocos datos
-            if (arregloNumeros.Length <= 10000)
+            if (arregloNumeros.Length <= Limite_Visualizacion)
             {
                 lstDatos.DataSource = null;
                 lstDatos.DataSource = arregloNumeros;

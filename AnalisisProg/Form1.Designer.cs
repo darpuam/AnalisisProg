@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.groupBoxRegistros = new System.Windows.Forms.GroupBox();
+            this.lstDatos2 = new System.Windows.Forms.ListBox();
             this.lstDatos = new System.Windows.Forms.ListBox();
             this.lblTiempoInicio = new System.Windows.Forms.Label();
             this.lblTiempoFin = new System.Windows.Forms.Label();
@@ -42,7 +43,6 @@
             this.tbBuscar = new System.Windows.Forms.TextBox();
             this.btnBusquedaSecuencial = new System.Windows.Forms.Button();
             this.btnBusquedaBinaria = new System.Windows.Forms.Button();
-            this.lstDatos2 = new System.Windows.Forms.ListBox();
             this.lblDuracion2 = new System.Windows.Forms.Label();
             this.lblTiempoFin2 = new System.Windows.Forms.Label();
             this.lblTiempoInicio2 = new System.Windows.Forms.Label();
@@ -55,10 +55,19 @@
             this.groupBoxRegistros.Controls.Add(this.lstDatos);
             this.groupBoxRegistros.Location = new System.Drawing.Point(12, 268);
             this.groupBoxRegistros.Name = "groupBoxRegistros";
-            this.groupBoxRegistros.Size = new System.Drawing.Size(349, 225);
+            this.groupBoxRegistros.Size = new System.Drawing.Size(362, 225);
             this.groupBoxRegistros.TabIndex = 0;
             this.groupBoxRegistros.TabStop = false;
             this.groupBoxRegistros.Text = "Registros: 0";
+            // 
+            // lstDatos2
+            // 
+            this.lstDatos2.FormattingEnabled = true;
+            this.lstDatos2.ItemHeight = 16;
+            this.lstDatos2.Location = new System.Drawing.Point(188, 21);
+            this.lstDatos2.Name = "lstDatos2";
+            this.lstDatos2.Size = new System.Drawing.Size(167, 196);
+            this.lstDatos2.TabIndex = 1;
             // 
             // lstDatos
             // 
@@ -72,7 +81,7 @@
             // lblTiempoInicio
             // 
             this.lblTiempoInicio.AutoSize = true;
-            this.lblTiempoInicio.Location = new System.Drawing.Point(9, 517);
+            this.lblTiempoInicio.Location = new System.Drawing.Point(6, 517);
             this.lblTiempoInicio.Name = "lblTiempoInicio";
             this.lblTiempoInicio.Size = new System.Drawing.Size(161, 16);
             this.lblTiempoInicio.TabIndex = 1;
@@ -81,7 +90,7 @@
             // lblTiempoFin
             // 
             this.lblTiempoFin.AutoSize = true;
-            this.lblTiempoFin.Location = new System.Drawing.Point(9, 546);
+            this.lblTiempoFin.Location = new System.Drawing.Point(6, 546);
             this.lblTiempoFin.Name = "lblTiempoFin";
             this.lblTiempoFin.Size = new System.Drawing.Size(143, 16);
             this.lblTiempoFin.TabIndex = 2;
@@ -117,7 +126,7 @@
             // lblDuracion
             // 
             this.lblDuracion.AutoSize = true;
-            this.lblDuracion.Location = new System.Drawing.Point(9, 571);
+            this.lblDuracion.Location = new System.Drawing.Point(6, 571);
             this.lblDuracion.Name = "lblDuracion";
             this.lblDuracion.Size = new System.Drawing.Size(139, 16);
             this.lblDuracion.TabIndex = 7;
@@ -179,19 +188,10 @@
             this.btnBusquedaBinaria.UseVisualStyleBackColor = true;
             this.btnBusquedaBinaria.Click += new System.EventHandler(this.btnBusquedaBinaria_Click_1);
             // 
-            // lstDatos2
-            // 
-            this.lstDatos2.FormattingEnabled = true;
-            this.lstDatos2.ItemHeight = 16;
-            this.lstDatos2.Location = new System.Drawing.Point(179, 21);
-            this.lstDatos2.Name = "lstDatos2";
-            this.lstDatos2.Size = new System.Drawing.Size(167, 196);
-            this.lstDatos2.TabIndex = 1;
-            // 
             // lblDuracion2
             // 
             this.lblDuracion2.AutoSize = true;
-            this.lblDuracion2.Location = new System.Drawing.Point(190, 571);
+            this.lblDuracion2.Location = new System.Drawing.Point(197, 571);
             this.lblDuracion2.Name = "lblDuracion2";
             this.lblDuracion2.Size = new System.Drawing.Size(139, 16);
             this.lblDuracion2.TabIndex = 15;
@@ -200,7 +200,7 @@
             // lblTiempoFin2
             // 
             this.lblTiempoFin2.AutoSize = true;
-            this.lblTiempoFin2.Location = new System.Drawing.Point(190, 546);
+            this.lblTiempoFin2.Location = new System.Drawing.Point(197, 546);
             this.lblTiempoFin2.Name = "lblTiempoFin2";
             this.lblTiempoFin2.Size = new System.Drawing.Size(143, 16);
             this.lblTiempoFin2.TabIndex = 14;
@@ -209,7 +209,7 @@
             // lblTiempoInicio2
             // 
             this.lblTiempoInicio2.AutoSize = true;
-            this.lblTiempoInicio2.Location = new System.Drawing.Point(190, 517);
+            this.lblTiempoInicio2.Location = new System.Drawing.Point(197, 517);
             this.lblTiempoInicio2.Name = "lblTiempoInicio2";
             this.lblTiempoInicio2.Size = new System.Drawing.Size(161, 16);
             this.lblTiempoInicio2.TabIndex = 13;
