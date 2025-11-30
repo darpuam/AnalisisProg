@@ -14,10 +14,10 @@ namespace AnalisisProg
 {
 
     public partial class Form1 : Form
-    {
-        private const int Limite_Visualizacion = 1000000;
-        long[] arregloNumeros;
-        long[] arregloOrdenado;
+    { // Se declaran las variables (crea la referencia) globales a nivel de clase para que todos las puedan utilizar.
+        private const long Limite_Visualizacion = 1000000; // Límite para mostrar en lista
+        long[] arregloNumeros; // Arreglo principal para guardar los números generados
+        long[] arregloOrdenado; // Arreglo para guardar los números ordenados
         public Form1()
         {
             InitializeComponent();
@@ -28,76 +28,79 @@ namespace AnalisisProg
         {
             try
             {
-                // MEJORA: Usar TryParse para evitar que el programa se cierre si escriben letras
+                // Si no se puede convertir a un numero, se muestra un mensaje y se sale del método.
+                // si se puede convertir, el valor se guarda en la variable cant.
                 if (!long.TryParse(tbCantidad.Text, out long cant))
                 {
                     MessageBox.Show("Por favor ingresa un número válido.");
                     return;
                 }
 
-                // Generación (tu código actual)
-                arregloNumeros = new long[cant];
-                Random rdn = new Random();
-                Stopwatch sw = new Stopwatch();
+                // Se construyen(instancian)`new` y se inicializan `=` los objetos necesarios para la generación de números aleatorios y la medición de tiempo.
+                arregloNumeros = new long[cant];// objeto arreglo para guardar los numeros generados
+                // Se declara, se instancia y se inicializa.
+                Random rdn = new Random();// Objeto para números aleatorios
+                Stopwatch sw = new Stopwatch(); // Objeto para medir el tiempo
 
-                lblTiempoInicio.Text = "Inicio Gen: " + DateTime.Now.ToString("hh:mm:ss.fff");
-                sw.Start();
-                for (long i = 0; i < cant; i++)
-                {
-                    arregloNumeros[i] = rdn.Next(1, 1000000);
+                lblTiempoInicio.Text = "Inicio Gen: " + DateTime.Now.ToString("hh:mm:ss.fff"); // Convierte el tiempo a texto legible por el usuario
+                sw.Start(); // Inicia la medición de tiempo
+                // El flujo seria el siguiente: Se crea la variable i, se evalua la condicion, si es verdadero que i < cant, se ejecuta el bloque de codigo, luego se incrementa la posicion de i en 1 y se vuelve a evaluar la condicion.
+                for (long i = 0; i < cant; i = i + 1) // Inicio i= 0, condicion i < cant, y incremento i++.
+                { // El .Next es el accionador del rdn (random). Sin este el rdn no haria nada.
+                    arregloNumeros[i] = rdn.Next(1, 1000000); // Si genera mas de un millón, puede repetirse
                 }
-                sw.Stop();
+                sw.Stop(); // Detiene la medición de tiempo
 
-                lblTiempoFin.Text = "Fin Gen: " + DateTime.Now.ToString("hh:mm:ss.fff");
-                lblDuracion.Text = $"Duración: {sw.ElapsedMilliseconds} ms";
+                lblTiempoFin.Text = "Fin Generacion: " + DateTime.Now.ToString("hh:mm:ss.fff"); // Convierte el tiempo a un formato legible por el usuario
+                lblDuracion.Text = $"Duración: {sw.ElapsedMilliseconds} ms"; // Que es elapsedMilliseconds? Es la propiedad que devuelve el tiempo transcurrido en milisegundos.
 
                 // Limpiamos la segunda lista para evitar confusiones
                 lstDatos2.DataSource = null;
 
-                // --- AQUÍ ESTÁ LA VENTANA EMERGENTE QUE PEDISTE ---
+                // Aqui se crea una ventana emergente si la cantidad es muy grande y se le pregunta al usuario si desea mostrar los datos.
                 if (cant <= Limite_Visualizacion)
                 {
-                    lstDatos.DataSource = null;
-                    lstDatos.DataSource = arregloNumeros;
+                    lstDatos.DataSource = null; // Limpiamos la lista antes de asignar nuevos datos
+                    lstDatos.DataSource = arregloNumeros; // Asignamos el arreglo a la lista para mostrar los números
                 }
                 else
                 {
-                    // Preguntamos al usuario
+                    // Si la cantidad es mayor al limite, preguntamos al usario.
                     DialogResult respuesta = MessageBox.Show(
-                        $"Has generado {cant:N0} registros. Mostrarlos en la lista podría congelar la aplicación.\n\n¿Deseas mostrarlos de todos modos?",
-                        "Advertencia de Rendimiento",
+                        $"Has generado {cant:N0} registros. Mostrarlos en la lista podría congelar la aplicación.\n\n¿Deseas mostrarlos?",
+                        "Advertencia",
                         MessageBoxButtons.YesNo,
                         MessageBoxIcon.Warning);
 
                     if (respuesta == DialogResult.Yes)
                     {
-                        lstDatos.DataSource = null;
-                        lstDatos.DataSource = arregloNumeros;
+                        lstDatos.DataSource = null; // Se limpia la lista.
+                        lstDatos.DataSource = arregloNumeros; // Se asignan los datos a la lista.
                     }
-                    else
+                    else // Si el usuario dice que NO
                     {
-                        lstDatos.DataSource = null;
+                        lstDatos.DataSource = null; // Se limpia la lista.
                         MessageBox.Show("Datos generados en memoria, pero ocultos.");
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) // Captura cualquier error inesperado
             {
-                MessageBox.Show("Error: " + ex.Message);
+                MessageBox.Show("Error: " + ex.Message); // Muestra el mensaje de error
             }
         }
         
         // Método recursivo principal de QuickSort
-        private void QuickSort(long[] arr, long low, long high)
+        private void QuickSort(long[] arr, long low, long high) // arr: arreglo, low: índice bajo, high: índice alto
         {
             if (low < high)
             {
                 // Obtiene el índice de partición
-                long pi = Partition(arr, low, high);
+                long partition = Partition(arr, low, high);
 
                 // Ordena recursivamente los elementos antes y después de la partición
-                QuickSort(arr, low, pi - 1);
-                QuickSort(arr, pi + 1, high);
+                QuickSort(arr, low, partition - 1);
+                QuickSort(arr, partition + 1, high);
             }
         }
 
