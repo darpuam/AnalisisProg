@@ -90,45 +90,52 @@ namespace AnalisisProg
             }
         }
         
+
+
+
+
         // Método recursivo principal de QuickSort
         private void QuickSort(long[] arr, long low, long high) // arr: arreglo, low: índice bajo, high: índice alto
         {
             if (low < high)
             {
-                // Obtiene el índice de partición
-                long partition = Partition(arr, low, high);
-
-                // Ordena recursivamente los elementos antes y después de la partición
-                QuickSort(arr, low, partition - 1);
-                QuickSort(arr, partition + 1, high);
+                // Primero se obtiene el índice de partición
+                long pi = Partition(arr, low, high);
+                // Despues se ordenan recursivamente los elementos antes y después de la partición
+                QuickSort(arr, low, pi - 1);
+                QuickSort(arr, pi + 1, high);
             }
         }
 
         // Lógica de partición (Divide y Vencerás)
         private long Partition(long[] arr, long low, long high)
         {
-            long pivot = arr[high]; // Tomamos el último elemento como pivote
-            long i = (low - 1);
+            long pivot = arr[high]; // El pivote va a adquirir el valor del ultimo elemento del array
+            long i = (low - 1);// La posicion de i es el indice mas pequeño iniciando en -1
 
+            // El flujo seria el siguiente: Se crea la variable j, se evalua la condicion, si es verdadero que j < high, se ejecuta el bloque de codigo, luego se incrementa la posicion de j en 1 y se vuelve a evaluar la condicion.
             for (long j = low; j < high; j++)
             {
-                // Si el elemento actual es menor que el pivote
+
+                // Si el elemento actual es menor que el pivote 
                 if (arr[j] < pivot)
                 {
-                    i++;
-                    // Intercambio (Swap)
-                    long temp = arr[i];
-                    arr[i] = arr[j];
-                    arr[j] = temp;
+                    i++;// Se incrementa el indice del elemento mas pequeño
+                    Swap(arr, i, j);// Se realiza el (Swap)
                 }
             }
             // Intercambio final para colocar el pivote en su lugar correcto
-            long temp1 = arr[i + 1];
-            arr[i + 1] = arr[high];
-            arr[high] = temp1;
+            Swap (arr, i + 1, high);
             return i + 1;
         }
-        
+        // Metood swap para intercambiar dos elementos en el arreglo
+        private void Swap(long[] arr, long a, long b)
+        {
+            long temp = arr[a];
+            arr[a] = arr[b];
+            arr[b] = temp;
+        }
+
         // --- QUICK SORT (O(n log n)) ---
         private async void btnQuickSort_Click_1(object sender, EventArgs e)
         {
@@ -137,17 +144,17 @@ namespace AnalisisProg
             btnQuickSort.Enabled = false;
             lblTiempoInicio.Text = "Iniciando QuickSort...";
 
-            // --- ESTA ES LA LÍNEA MÁGICA QUE TE FALTA ---
             // Copiamos los números al arreglo que usa la Búsqueda Binaria
             arregloOrdenado = (long[])arregloNumeros.Clone();
-
-            Stopwatch sw = new Stopwatch();
+           
+            Stopwatch sw = new Stopwatch();// Se declara, se instancia y se inicializa otro Stopwatch.
             sw.Start();
 
             // Procesamos en segundo plano para no congelar la pantalla
             await Task.Run(() =>
             {
                 // Ordenamos LA COPIA (arregloOrdenado) en lugar del original
+                // Se coloca el 0 para que el metodo QuickSort sepa desde donde ordenar y hasta donde que seria arregloOrdenado.Length -1 pq si el arrelgo tiene 5 elementos te dice la longitud del arreglo -1 pq siempre inicia en 0 hasta 4 osea la longitud del arreglo que es 5 -1 osea 4.
                 QuickSort(arregloOrdenado, 0, arregloOrdenado.Length - 1);
             });
 
@@ -164,22 +171,41 @@ namespace AnalisisProg
             }
             else
             {
-                MessageBox.Show("Ordenado completado en memoria. ¡Ahora ya funciona la Búsqueda Binaria!");
+                // Si la cantidad es mayor al limite, preguntamos al usario.
+                DialogResult respuesta = MessageBox.Show(
+                    $"Vas a ordenar los numeros. Mostrarlos en la lista podría congelar la aplicación.\n\n¿Deseas mostrarlos?",
+                    "Advertencia",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+
+                if (respuesta == DialogResult.Yes)
+                {
+                    lstDatos2.DataSource = null; // Se limpia la lista.
+                    lstDatos2.DataSource = arregloOrdenado; // Se asignan los datos a la lista.
+                }
+                else // Si el usuario dice que NO
+                {
+                    lstDatos.DataSource = null; // Se limpia la lista.
+                    MessageBox.Show("Datos generados en memoria, pero ocultos.");
+                }
             }
         }
+
+
+
 
         // --- INSERTION SORT (O(n^2)) ---
         // Usamos 'async' para no bloquear la ventana principal mientras ordena
         private async void btnInsertionSort_Click_1(object sender, EventArgs e)
         {
-            // Validación básica
+            // Se hace una validacion de si el arregloNumeros esta vacio o si la longitud de este es 0 osea que esta vacio.
             if (arregloNumeros == null || arregloNumeros.Length == 0)
-            {
+            { // Si no esta vacio entonces te dice que generes los numeros y te manda de regreso.
                 MessageBox.Show("Primero genera los números.");
                 return;
             }
 
-            // --- CAMBIO SOLICITADO: PREGUNTAR EN LUGAR DE BLOQUEAR ---
+            // Si el arreglo tiene 
             if (arregloNumeros.Length > 50000)
             {
                 DialogResult respuesta = MessageBox.Show(
@@ -233,7 +259,7 @@ namespace AnalisisProg
             }
             else
             {
-                MessageBox.Show("Ordenado completado en memoria. Ahora puedes usar Búsqueda Binaria.");
+                MessageBox.Show("Ordenado completado en memoria. ");
             }
         }
         
